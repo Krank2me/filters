@@ -4,43 +4,60 @@
     <form [formGroup]="filterForm">
       <mat-form-field appearance="fill">
         <div class="search-container">
-
-          <ng-container *ngIf="filterSelected != 'state'">
+          <ng-container *ngIf="!isSelect">
             <input
-              type="email"
+              [type]="typeControl"
               matInput
-              [formControl]="email"
+              [maxlength]="maxlength"
+              [minlength]="minlength"
+              [min]="min"
+              [max]="max"
+              [formControl]="customControl"
               [errorStateMatcher]="matcher"
               placeholder="Search"
-            >
+            />
           </ng-container>
-          <ng-container *ngIf="filterSelected == 'state'">
+
+          <ng-container *ngIf="isSelect">
             <mat-label *ngIf="!stateSelected">Seleccione...</mat-label>
             <mat-select class="state-select" [(value)]="stateSelected">
               <mat-option
-                *ngFor="let state of statelist"
-                value={{state}}
+                *ngFor="let state of fieldsSelected?.state_list"
+                value="{{ state }}"
               >
-                {{state}}
+                {{ state }}
               </mat-option>
             </mat-select>
           </ng-container>
-          <mat-select class="filter-select" [(value)]="filterSelected">
-            <mat-option
-              *ngFor="let select of selectList"
-              value={{select.key}}
-            >
-              {{select.value}}
+          <mat-select
+            class="filter-select"
+            [(value)]="filterSelected"
+            (selectionChange)="onChange($event)"
+          >
+            <mat-option *ngFor="let field of fields" value="{{ field?.value }}">
+              {{ field.text }}
             </mat-option>
           </mat-select>
-          <mat-icon>search</mat-icon>
+          <mat-icon (click)="search()" *ngIf="showSearch">search</mat-icon>
+          <mat-icon (click)="clean()" *ngIf="showClose">close</mat-icon>
+          <mat-spinner *ngIf="fetching" [diameter]="20"></mat-spinner>
         </div>
-        <mat-error *ngIf="email.hasError('email') && !email.hasError('required')">
-          Please enter a valid email address
+
+        <mat-error *ngIf="!fieldsSelected">
+          Porfavor seleccione un item de la lista...
         </mat-error>
-        <mat-error *ngIf="email.hasError('required')">
-          Email is <strong>required</strong>
-        </mat-error>
+
+        <!-- <ng-container *ngIf="fieldsSelected">
+          <mat-error
+            *ngIf="email.hasError('email') && !email.hasError('required')"
+          >
+            Please enter a valid email address
+          </mat-error>
+
+          <mat-error *ngIf="email.hasError('required')">
+            Email is <strong>required</strong>
+          </mat-error>
+        </ng-container> -->
       </mat-form-field>
     </form>
   </mat-card-content>
