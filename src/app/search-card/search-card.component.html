@@ -1,0 +1,47 @@
+<mat-card>
+  <mat-card-title>Filters</mat-card-title>
+  <mat-card-content>
+    <form [formGroup]="filterForm">
+      <mat-form-field appearance="fill">
+        <div class="search-container">
+
+          <ng-container *ngIf="filterSelected != 'state'">
+            <input
+              type="email"
+              matInput
+              [formControl]="email"
+              [errorStateMatcher]="matcher"
+              placeholder="Search"
+            >
+          </ng-container>
+          <ng-container *ngIf="filterSelected == 'state'">
+            <mat-label *ngIf="!stateSelected">Seleccione...</mat-label>
+            <mat-select class="state-select" [(value)]="stateSelected">
+              <mat-option
+                *ngFor="let state of statelist"
+                value={{state}}
+              >
+                {{state}}
+              </mat-option>
+            </mat-select>
+          </ng-container>
+          <mat-select class="filter-select" [(value)]="filterSelected">
+            <mat-option
+              *ngFor="let select of selectList"
+              value={{select.key}}
+            >
+              {{select.value}}
+            </mat-option>
+          </mat-select>
+          <mat-icon>search</mat-icon>
+        </div>
+        <mat-error *ngIf="email.hasError('email') && !email.hasError('required')">
+          Please enter a valid email address
+        </mat-error>
+        <mat-error *ngIf="email.hasError('required')">
+          Email is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-card-content>
+</mat-card>
