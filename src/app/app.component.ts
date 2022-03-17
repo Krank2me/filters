@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TypeFilter } from './search-card/search-card.model';
+import { TypeFilter, TypeSearch } from './search-card/search-card.model';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +10,17 @@ export class AppComponent {
   title = 'filters';
   fetching = false;
 
-  fields = [
+  fields: TypeSearch[] = [
     {
       text: 'Name',
       value: 'name',
       type: TypeFilter.STRING,
+    },
+    {
+      text: 'Solo valor kleisman',
+      value: 'kleisman',
+      type: TypeFilter.STRING,
+      regex: /^kleisman$/,
     },
     {
       text: 'Phone',
@@ -25,6 +31,20 @@ export class AppComponent {
       text: 'Cédula',
       value: 'cedula',
       type: TypeFilter.NUMERIC,
+      minlength: 8,
+    },
+    {
+      text: 'Edad',
+      value: 'edad',
+      type: TypeFilter.NUMERIC,
+      min: 18,
+      max: 60,
+    },
+    {
+      text: 'Unit',
+      value: 'unit',
+      type: TypeFilter.NUMERIC,
+      maxlength: 4,
     },
     { text: 'Email', value: 'email', type: TypeFilter.EMAIL },
     {
@@ -40,4 +60,11 @@ export class AppComponent {
       ],
     },
   ];
+
+  getQuery(text: any) {
+    this.fetching = true;
+    setTimeout(() => {
+      this.fetching = false;
+    }, 2000);
+  }
 }
