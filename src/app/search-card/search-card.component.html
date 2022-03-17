@@ -36,6 +36,7 @@
               </mat-option>
             </mat-select>
           </ng-container>
+
           <mat-select
             class="filter-select"
             [(value)]="filterSelected"
@@ -45,25 +46,16 @@
               {{ field.text }}
             </mat-option>
           </mat-select>
-          <mat-icon (click)="search()" *ngIf="showSearch">search</mat-icon>
-          <mat-icon (click)="clean()" *ngIf="showClose">close</mat-icon>
-          <mat-spinner *ngIf="fetching" [diameter]="20"></mat-spinner>
+          <div class="--icon">
+            <mat-icon (click)="search()" *ngIf="showSearch">search</mat-icon>
+            <mat-icon (click)="clean()" *ngIf="showClose">close</mat-icon>
+            <mat-spinner *ngIf="fetching" [diameter]="24"></mat-spinner>
+          </div>
         </div>
         <mat-hint *ngIf="!fieldsSelected">
           Porfavor seleccione un item de la lista...
         </mat-hint>
-
-        <!-- <ng-container *ngIf="fieldsSelected">
-          <mat-error
-            *ngIf="email.hasError('email') && !email.hasError('required')"
-          >
-            Please enter a valid email address
-          </mat-error>
-
-          <mat-error *ngIf="email.hasError('required')">
-            Email is <strong>required</strong>
-          </mat-error>
-        </ng-container> -->
+        <mat-error> {{ getTextError() }}</mat-error>
       </mat-form-field>
     </form>
   </mat-card-content>

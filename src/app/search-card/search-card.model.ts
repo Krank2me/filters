@@ -3,8 +3,8 @@ export interface TypeSearch {
   value?: string;
   type?: TypeFilter;
   regex?: string | RegExp;
-  max_length?: number;
-  min_length?: number;
+  maxlength?: number;
+  minlength?: number;
   min?: number;
   max?: number;
   state_list?: string[];

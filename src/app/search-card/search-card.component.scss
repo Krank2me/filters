@@ -43,11 +43,19 @@ mat-form-field {
       margin-top: 2px;
     }
   }
+  .--icon {
+    margin-left: 5px;
+    padding-bottom: 5px;
+  }
 
   mat-icon {
     display: block;
-    margin-left: 5px;
-    padding-bottom: 5px;
     cursor: pointer;
+  }
+}
+
+.mat-focused {
+  .mat-icon {
+    color: #3f51b5;
   }
 }

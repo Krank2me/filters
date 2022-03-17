@@ -12,6 +12,7 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
@@ -40,16 +41,13 @@ export class SearchCardComponent implements OnInit, OnChanges {
   listFilters = [];
   maxlength!: number;
   minlength!: number;
-  min!: number;
+  min: number = 0;
   max!: number;
   private _called: any = null;
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
-      query: new FormControl('', [
-        Validators.minLength(1),
-        Validators.required,
-      ]),
+      query: new FormControl(''),
     });
   }
 
@@ -74,6 +72,14 @@ export class SearchCardComponent implements OnInit, OnChanges {
 
   get showClose() {
     return !this.fetching && this.controlQuery?.value;
+  }
+
+  get errors() {
+    const keys = this.fieldsSelected
+      ? Object.keys((this.controlQuery?.errors as ValidationErrors) || {})
+      : [];
+
+    return keys;
   }
 
   setQuery() {
@@ -123,9 +129,43 @@ export class SearchCardComponent implements OnInit, OnChanges {
     }
   }
 
+  getTextError() {
+    let text = '';
+    if (this.controlQuery.hasError('required')) {
+      text = 'El campo es requerido.';
+    }
+    if (this.controlQuery.hasError('minlength')) {
+      text = `Debe tener mínimo ${
+        this.controlQuery.getError('minlength').requiredLength
+      } carateres.`;
+    }
+    if (this.controlQuery.hasError('maxlength')) {
+      text = `Debe tener máximo ${
+        this.controlQuery.getError('maxlength').requiredLength
+      } carateres.`;
+    }
+    if (this.controlQuery.hasError('min')) {
+      text = `El valor debe ser mínimo de  ${
+        this.controlQuery.getError('min').min
+      }.`;
+    }
+    if (this.controlQuery.hasError('max')) {
+      text = `El valor debe ser máximo de  ${
+        this.controlQuery.getError('max').max
+      }.`;
+    }
+    if (this.controlQuery.hasError('pattern')) {
+      text = `Valor Inválido`;
+    }
+    return text;
+  }
+
   setValidators() {
+    this.min = 0;
+    (this.max as any) = null;
+    (this.maxlength as any) = null;
+    (this.minlength as any) = null;
     this.controlQuery.clearValidators();
-    this.controlQuery.updateValueAndValidity();
     this.controlQuery.addValidators([
       Validators.minLength(1),
       Validators.required,
@@ -140,11 +180,7 @@ export class SearchCardComponent implements OnInit, OnChanges {
     if (this.fieldsSelected?.type === TypeFilter.PHONE) {
       this.maxlength = 10;
       this.minlength = 10;
-      this.controlQuery.addValidators([
-        Validators.minLength(10),
-        Validators.maxLength(10),
-        Validators.pattern(/^[0-9]{10}$/),
-      ]);
+      this.controlQuery.addValidators([Validators.pattern(/\d+/)]);
     }
 
     if (this.fieldsSelected?.type === TypeFilter.NUMERIC) {
@@ -160,21 +196,31 @@ export class SearchCardComponent implements OnInit, OnChanges {
       ]);
     }
 
-    this.maxlength =
-      typeof this.fieldsSelected.max_length === 'number'
-        ? this.fieldsSelected.max_length
-        : this.maxlength;
-    this.minlength =
-      typeof this.fieldsSelected.min_length === 'number'
-        ? this.fieldsSelected.min_length
-        : this.minlength;
+    if (typeof this.fieldsSelected?.max === 'number') {
+      this.max = this.fieldsSelected.max;
+      this.controlQuery.addValidators([Validators.max(this.max)]);
+    }
     this.min =
-      typeof this.fieldsSelected.min === 'number'
+      typeof this.fieldsSelected?.min === 'number'
         ? this.fieldsSelected.min
         : this.min;
-    this.max =
-      typeof this.fieldsSelected.max === 'number'
-        ? this.fieldsSelected.max
-        : this.max;
+    if (typeof this.fieldsSelected?.min === 'number' || this.min) {
+      this.controlQuery.addValidators([Validators.min(this.min)]);
+    }
+    this.minlength =
+      typeof this.fieldsSelected?.minlength === 'number'
+        ? this.fieldsSelected.minlength
+        : this.minlength;
+    if (typeof this.fieldsSelected?.minlength === 'number') {
+      this.controlQuery.addValidators([Validators.minLength(this.minlength)]);
+    }
+    this.maxlength =
+      typeof this.fieldsSelected?.maxlength === 'number'
+        ? this.fieldsSelected.maxlength
+        : this.maxlength;
+    if (typeof this.fieldsSelected?.maxlength === 'number') {
+      this.controlQuery.addValidators([Validators.maxLength(this.maxlength)]);
+    }
+    this.controlQuery.updateValueAndValidity();
   }
 }
