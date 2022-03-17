@@ -41,6 +41,7 @@ export class SearchCardComponent {
   min: number = 0;
   max!: number;
   private _called: any = null;
+  private _onquery: any = null;
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
@@ -65,13 +66,18 @@ export class SearchCardComponent {
   }
 
   setQuery() {
-    if (!this.controlQuery.valid || !this.fieldsSelected) {
+    if (
+      !this.controlQuery.valid ||
+      !this.fieldsSelected ||
+      this._onquery === this.controlQuery.value
+    ) {
       return;
     }
     if (this._called) {
       clearTimeout(this._called);
     }
     this._called = setTimeout(() => {
+      this._onquery = this.controlQuery.value;
       this.onQuery.emit(this.controlQuery.value);
     }, 600);
   }
@@ -80,7 +86,7 @@ export class SearchCardComponent {
     e.stopPropagation();
   }
 
-  onKeyUp(event: any) {
+  onInput(event: any) {
     if (
       (this.fieldsSelected?.type === TypeFilter.NUMERIC ||
         this.fieldsSelected?.type === TypeFilter.PHONE) &&
