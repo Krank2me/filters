@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { TypeSearch } from '../search-card/search-card.model';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,11 @@ export class SearchService {
   }
 
   getListByFilter(key: string) {
-    const url = `localhost:8080/${key}`;
-    return this.http.get<TypeSearch>(url);
+    return of([
+      'carlos',
+      'juan',
+      'camilo',
+      'manuel'
+    ])
   }
 }

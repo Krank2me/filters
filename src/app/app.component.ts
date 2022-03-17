@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { TypeFilter, TypeSearch } from './search-card/search-card.model';
+import { SearchService } from './services/search.service';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,7 @@ import { TypeFilter, TypeSearch } from './search-card/search-card.model';
 })
 export class AppComponent {
   title = 'filters';
+  query = '';
   fetching = false;
 
   fields: TypeSearch[] = [
@@ -61,10 +63,15 @@ export class AppComponent {
     },
   ];
 
-  getQuery(text: any) {
+  constructor(public searchService: SearchService) {}
+
+  getQuery(query: any) {
+    this.query = query;
     this.fetching = true;
-    setTimeout(() => {
-      this.fetching = false;
-    }, 2000);
+    this.searchService.getListByFilter(query).subscribe((res) => {
+      setTimeout(() => {
+        this.fetching = false;
+      }, 2000);
+    });
   }
 }

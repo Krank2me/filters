@@ -2,10 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
-  OnInit,
   Output,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -24,7 +21,7 @@ import { TypeFilter, TypeSearch } from './search-card.model';
   templateUrl: './search-card.component.html',
   styleUrls: ['./search-card.component.scss'],
 })
-export class SearchCardComponent implements OnInit, OnChanges {
+export class SearchCardComponent {
   @Input() fields: TypeSearch[] = [];
   @Input() fetching = false;
 
@@ -44,18 +41,12 @@ export class SearchCardComponent implements OnInit, OnChanges {
   min: number = 0;
   max!: number;
   private _called: any = null;
+  private _onquery: any = null;
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       query: new FormControl(''),
     });
-  }
-
-  ngOnInit(): void {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('fields' in changes && this.fields) {
-    }
   }
 
   get controlQuery() {
@@ -74,27 +65,28 @@ export class SearchCardComponent implements OnInit, OnChanges {
     return !this.fetching && this.controlQuery?.value;
   }
 
-  get errors() {
-    const keys = this.fieldsSelected
-      ? Object.keys((this.controlQuery?.errors as ValidationErrors) || {})
-      : [];
-
-    return keys;
-  }
-
   setQuery() {
-    if (!this.controlQuery.valid || !this.fieldsSelected) {
+    if (
+      !this.controlQuery.valid ||
+      !this.fieldsSelected ||
+      this._onquery === this.controlQuery.value
+    ) {
       return;
     }
     if (this._called) {
       clearTimeout(this._called);
     }
     this._called = setTimeout(() => {
+      this._onquery = this.controlQuery.value;
       this.onQuery.emit(this.controlQuery.value);
     }, 600);
   }
 
-  onKeyUp(event: any) {
+  stop(e: any) {
+    e.stopPropagation();
+  }
+
+  onInput(event: any) {
     if (
       (this.fieldsSelected?.type === TypeFilter.NUMERIC ||
         this.fieldsSelected?.type === TypeFilter.PHONE) &&
@@ -131,9 +123,6 @@ export class SearchCardComponent implements OnInit, OnChanges {
 
   getTextError() {
     let text = '';
-    if (this.controlQuery.hasError('required')) {
-      text = 'El campo es requerido.';
-    }
     if (this.controlQuery.hasError('minlength')) {
       text = `Debe tener mínimo ${
         this.controlQuery.getError('minlength').requiredLength
@@ -166,10 +155,7 @@ export class SearchCardComponent implements OnInit, OnChanges {
     (this.maxlength as any) = null;
     (this.minlength as any) = null;
     this.controlQuery.clearValidators();
-    this.controlQuery.addValidators([
-      Validators.minLength(1),
-      Validators.required,
-    ]);
+    this.controlQuery.addValidators([Validators.minLength(1)]);
 
     if (this.fieldsSelected?.regex) {
       this.controlQuery.addValidators([

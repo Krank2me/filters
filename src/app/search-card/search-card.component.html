@@ -14,19 +14,20 @@
               [max]="max"
               formControlName="query"
               [errorStateMatcher]="matcher"
-              placeholder="Search"
-              (input)="onKeyUp($event.target)"
+              placeholder="Buscar"
+              (input)="onInput($event.target)"
             />
           </ng-container>
 
           <ng-container *ngIf="isSelect">
-            <mat-label *ngIf="!stateSelected">Seleccione...</mat-label>
             <mat-select
               #matSelect
               formControlName="query"
               class="state-select"
               [(value)]="stateSelected"
-              (selectionChange)="onChangeState()"
+              (selectionChange)="setQuery()"
+              required="false"
+              placeholder="Seleccione"
             >
               <mat-option
                 *ngFor="let state of fieldsSelected?.state_list"
@@ -36,18 +37,22 @@
               </mat-option>
             </mat-select>
           </ng-container>
-
-          <mat-select
-            class="filter-select"
-            [(value)]="filterSelected"
-            (selectionChange)="onChange($event)"
-          >
-            <mat-option *ngFor="let field of fields" value="{{ field?.value }}">
-              {{ field.text }}
-            </mat-option>
-          </mat-select>
+          <div class="stop" (click)="stop($event)">
+            <mat-select
+              class="filter-select"
+              [(value)]="filterSelected"
+              (selectionChange)="onChange($event)"
+            >
+              <mat-option
+                *ngFor="let field of fields"
+                value="{{ field?.value }}"
+              >
+                {{ field.text }}
+              </mat-option>
+            </mat-select>
+          </div>
           <div class="--icon">
-            <mat-icon (click)="search()" *ngIf="showSearch">search</mat-icon>
+            <mat-icon (click)="setQuery()" *ngIf="showSearch">search</mat-icon>
             <mat-icon (click)="clean()" *ngIf="showClose">close</mat-icon>
             <mat-spinner *ngIf="fetching" [diameter]="24"></mat-spinner>
           </div>
