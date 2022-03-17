@@ -2,10 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
-  OnInit,
   Output,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -24,7 +21,7 @@ import { TypeFilter, TypeSearch } from './search-card.model';
   templateUrl: './search-card.component.html',
   styleUrls: ['./search-card.component.scss'],
 })
-export class SearchCardComponent implements OnInit, OnChanges {
+export class SearchCardComponent {
   @Input() fields: TypeSearch[] = [];
   @Input() fetching = false;
 
@@ -51,13 +48,6 @@ export class SearchCardComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnInit(): void {}
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if ('fields' in changes && this.fields) {
-    }
-  }
-
   get controlQuery() {
     return this.filterForm.controls['query'];
   }
@@ -74,14 +64,6 @@ export class SearchCardComponent implements OnInit, OnChanges {
     return !this.fetching && this.controlQuery?.value;
   }
 
-  get errors() {
-    const keys = this.fieldsSelected
-      ? Object.keys((this.controlQuery?.errors as ValidationErrors) || {})
-      : [];
-
-    return keys;
-  }
-
   setQuery() {
     if (!this.controlQuery.valid || !this.fieldsSelected) {
       return;
@@ -92,6 +74,10 @@ export class SearchCardComponent implements OnInit, OnChanges {
     this._called = setTimeout(() => {
       this.onQuery.emit(this.controlQuery.value);
     }, 600);
+  }
+
+  stop(e: any) {
+    e.stopPropagation();
   }
 
   onKeyUp(event: any) {
@@ -131,9 +117,6 @@ export class SearchCardComponent implements OnInit, OnChanges {
 
   getTextError() {
     let text = '';
-    if (this.controlQuery.hasError('required')) {
-      text = 'El campo es requerido.';
-    }
     if (this.controlQuery.hasError('minlength')) {
       text = `Debe tener mínimo ${
         this.controlQuery.getError('minlength').requiredLength
@@ -166,10 +149,7 @@ export class SearchCardComponent implements OnInit, OnChanges {
     (this.maxlength as any) = null;
     (this.minlength as any) = null;
     this.controlQuery.clearValidators();
-    this.controlQuery.addValidators([
-      Validators.minLength(1),
-      Validators.required,
-    ]);
+    this.controlQuery.addValidators([Validators.minLength(1)]);
 
     if (this.fieldsSelected?.regex) {
       this.controlQuery.addValidators([

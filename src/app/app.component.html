@@ -1,1 +1,7 @@
-<app-search-card [fetching]="fetching" [fields]="fields" (onQuery)="getQuery($event)"></app-search-card>
+Query: {{ query }}
+<br>
+<app-search-card
+  [fetching]="fetching"
+  [fields]="fields"
+  (onQuery)="getQuery($event)"
+></app-search-card>
