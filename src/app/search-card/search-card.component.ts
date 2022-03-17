@@ -1,9 +1,12 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -11,7 +14,7 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { MatSelectChange } from '@angular/material/select';
+import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MyErrorStateMatcher } from '../utilities/ErrorStateMatcher';
 import { TypeFilter, TypeSearch } from './search-card.model';
 
@@ -24,10 +27,12 @@ export class SearchCardComponent implements OnInit, OnChanges {
   @Input() fields: TypeSearch[] = [];
   @Input() fetching = false;
 
+  @Output() onQuery = new EventEmitter<string>();
+
+  @ViewChild('matSelect', { static: false }) matSelect!: MatSelect;
+
   filterForm!: FormGroup;
   matcher = new MyErrorStateMatcher();
-  // email = new FormControl('', [Validators.email]);
-  customControl = new FormControl('', []);
   fieldsSelected!: TypeSearch;
   filterSelected = '';
   stateSelected: string = '';
@@ -37,9 +42,15 @@ export class SearchCardComponent implements OnInit, OnChanges {
   minlength!: number;
   min!: number;
   max!: number;
+  private _called: any = null;
 
-  constructor(public fb: FormBuilder) {
-    this.filterForm = new FormGroup({});
+  constructor(private fb: FormBuilder) {
+    this.filterForm = this.fb.group({
+      query: new FormControl('', [
+        Validators.minLength(1),
+        Validators.required,
+      ]),
+    });
   }
 
   ngOnInit(): void {}
@@ -49,31 +60,54 @@ export class SearchCardComponent implements OnInit, OnChanges {
     }
   }
 
+  get controlQuery() {
+    return this.filterForm.controls['query'];
+  }
+
   get isSelect() {
     return this.fieldsSelected?.type === TypeFilter.SELECT;
   }
 
   get showSearch() {
-    return !this.fetching && !this.customControl?.value;
+    return !this.fetching && !this.controlQuery?.value;
   }
 
   get showClose() {
-    return !this.fetching && this.customControl?.value;
+    return !this.fetching && this.controlQuery?.value;
   }
 
-  get typeControl() {
-    switch (this.fieldsSelected?.type) {
-      case TypeFilter.EMAIL:
-        return 'email';
-      case TypeFilter.NUMERIC:
-      case TypeFilter.PHONE:
-        return 'number';
-      default:
-        return 'text';
+  setQuery() {
+    if (!this.controlQuery.valid || !this.fieldsSelected) {
+      return;
     }
+    if (this._called) {
+      clearTimeout(this._called);
+    }
+    this._called = setTimeout(() => {
+      this.onQuery.emit(this.controlQuery.value);
+    }, 600);
+  }
+
+  onKeyUp(event: any) {
+    if (
+      (this.fieldsSelected?.type === TypeFilter.NUMERIC ||
+        this.fieldsSelected?.type === TypeFilter.PHONE) &&
+      !/^[0-9]$/.test(event.value)
+    ) {
+      let regex = /\d+/g;
+      let value = regex.exec(event.value);
+      let newValue = value ? value[0] : '';
+      this.controlQuery.setValue(newValue);
+    }
+    this.setQuery();
+  }
+
+  onChangeState() {
+    this.setQuery();
   }
 
   onChange(matSelectChange: MatSelectChange) {
+    this.controlQuery.reset();
     this.fieldsSelected = this.fields.find(
       (field) => field.value === matSelectChange.value
     ) as TypeSearch;
@@ -83,14 +117,22 @@ export class SearchCardComponent implements OnInit, OnChanges {
   search() {}
 
   clean() {
-    this.customControl.reset();
+    this.controlQuery.reset();
+    if (this.matSelect) {
+      setTimeout(() => this.matSelect.close());
+    }
   }
 
   setValidators() {
-    this.customControl.setValidators([Validators.required]);
+    this.controlQuery.clearValidators();
+    this.controlQuery.updateValueAndValidity();
+    this.controlQuery.addValidators([
+      Validators.minLength(1),
+      Validators.required,
+    ]);
 
     if (this.fieldsSelected?.regex) {
-      this.customControl.setValidators([
+      this.controlQuery.addValidators([
         Validators.pattern(this.fieldsSelected?.regex),
       ]);
     }
@@ -98,15 +140,19 @@ export class SearchCardComponent implements OnInit, OnChanges {
     if (this.fieldsSelected?.type === TypeFilter.PHONE) {
       this.maxlength = 10;
       this.minlength = 10;
-      this.customControl.setValidators([
+      this.controlQuery.addValidators([
         Validators.minLength(10),
         Validators.maxLength(10),
-        Validators.pattern('^[0-9]{10}$'),
+        Validators.pattern(/^[0-9]{10}$/),
       ]);
     }
 
+    if (this.fieldsSelected?.type === TypeFilter.NUMERIC) {
+      this.controlQuery.addValidators([Validators.pattern(/\d+/)]);
+    }
+
     if (this.fieldsSelected?.type === TypeFilter.EMAIL) {
-      this.customControl.setValidators([
+      this.controlQuery.addValidators([
         Validators.email,
         Validators.pattern(
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/

@@ -6,21 +6,28 @@
         <div class="search-container">
           <ng-container *ngIf="!isSelect">
             <input
-              [type]="typeControl"
+              type="text"
               matInput
               [maxlength]="maxlength"
               [minlength]="minlength"
               [min]="min"
               [max]="max"
-              [formControl]="customControl"
+              formControlName="query"
               [errorStateMatcher]="matcher"
               placeholder="Search"
+              (input)="onKeyUp($event.target)"
             />
           </ng-container>
 
           <ng-container *ngIf="isSelect">
             <mat-label *ngIf="!stateSelected">Seleccione...</mat-label>
-            <mat-select class="state-select" [(value)]="stateSelected">
+            <mat-select
+              #matSelect
+              formControlName="query"
+              class="state-select"
+              [(value)]="stateSelected"
+              (selectionChange)="onChangeState()"
+            >
               <mat-option
                 *ngFor="let state of fieldsSelected?.state_list"
                 value="{{ state }}"
@@ -42,10 +49,9 @@
           <mat-icon (click)="clean()" *ngIf="showClose">close</mat-icon>
           <mat-spinner *ngIf="fetching" [diameter]="20"></mat-spinner>
         </div>
-
-        <mat-error *ngIf="!fieldsSelected">
+        <mat-hint *ngIf="!fieldsSelected">
           Porfavor seleccione un item de la lista...
-        </mat-error>
+        </mat-hint>
 
         <!-- <ng-container *ngIf="fieldsSelected">
           <mat-error
