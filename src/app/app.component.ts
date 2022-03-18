@@ -54,11 +54,26 @@ export class AppComponent {
       value: 'state',
       type: TypeFilter.SELECT,
       state_list: [
-        'Incontactable',
-        'Future Champion',
-        'Potential Champion',
-        'Unqualified',
-        'Potential Customer',
+        {
+          name: 'Incontactable',
+          value: 'INCONTACTABLE'
+        },
+        {
+          name: 'Future Champion',
+          value: 'FUTURE_CHAMPION'
+        },
+        {
+          name: 'Potential Champion',
+          value: 'POTENCIAL_CHAMPION'
+        },
+        {
+          name: 'Unqualified',
+          value: 'UNQUALIFIED'
+        },
+        {
+          name: 'Potential Customer',
+          value: 'POTENCIAL_CUSTOMER'
+        }
       ],
     },
   ];

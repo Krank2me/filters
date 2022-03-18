@@ -7,7 +7,7 @@ export interface TypeSearch {
   minlength?: number;
   min?: number;
   max?: number;
-  state_list?: string[];
+  state_list?: StateList[];
 }
 
 export enum TypeFilter {
@@ -16,4 +16,9 @@ export enum TypeFilter {
   EMAIL = 'email',
   SELECT = 'select',
   PHONE = 'phone',
+}
+
+export interface StateList {
+  name: string,
+  value: string
 }
