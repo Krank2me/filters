@@ -120,6 +120,7 @@ export class SearchCardComponent {
 
   clean() {
     this.controlQuery.reset();
+    this.sentEvent();
     if (this.matSelect) {
       setTimeout(() => this.matSelect.close());
     }
