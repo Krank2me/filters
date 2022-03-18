@@ -1,5 +1,5 @@
-Query: {{ query }}
-<br>
+Query: {{ query | json }}
+<br />
 <app-search-card
   [fetching]="fetching"
   [fields]="fields"

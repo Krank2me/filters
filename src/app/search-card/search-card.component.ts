@@ -9,12 +9,11 @@ import {
   FormBuilder,
   FormControl,
   FormGroup,
-  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MyErrorStateMatcher } from '../utilities/ErrorStateMatcher';
-import { TypeFilter, TypeSearch } from './search-card.model';
+import { TypeFilter, TypeSearch, QueryValue } from './search-card.model';
 
 @Component({
   selector: 'app-search-card',
@@ -25,7 +24,7 @@ export class SearchCardComponent {
   @Input() fields: TypeSearch[] = [];
   @Input() fetching = false;
 
-  @Output() onQuery = new EventEmitter<string>();
+  @Output() onQuery = new EventEmitter<QueryValue>();
 
   @ViewChild('matSelect', { static: false }) matSelect!: MatSelect;
 
@@ -41,7 +40,7 @@ export class SearchCardComponent {
   min: number = 0;
   max!: number;
   private _called: any = null;
-  private _onquery: any = null;
+  private _onquery!: QueryValue;
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
@@ -66,19 +65,25 @@ export class SearchCardComponent {
   }
 
   setQuery() {
-    if (
-      !this.controlQuery.valid ||
-      !this.fieldsSelected ||
-      this._onquery === this.controlQuery.value
-    ) {
+    if (!this.controlQuery.valid || !this.fieldsSelected) {
+      return;
+    }
+    this.sentEvent();
+  }
+
+  private sentEvent() {
+    if (this._onquery?.value === this.controlQuery.value) {
       return;
     }
     if (this._called) {
       clearTimeout(this._called);
     }
     this._called = setTimeout(() => {
-      this._onquery = this.controlQuery.value;
-      this.onQuery.emit(this.controlQuery.value);
+      const queryValue: QueryValue = {
+        key: this.fieldsSelected.value,
+        value: this.controlQuery.value,
+      };
+      this.onQuery.emit((this._onquery = queryValue));
     }, 600);
   }
 
@@ -109,10 +114,9 @@ export class SearchCardComponent {
     this.fieldsSelected = this.fields.find(
       (field) => field.value === matSelectChange.value
     ) as TypeSearch;
+    this.sentEvent();
     this.setValidators();
   }
-
-  search() {}
 
   clean() {
     this.controlQuery.reset();

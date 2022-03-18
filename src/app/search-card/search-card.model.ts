@@ -19,6 +19,11 @@ export enum TypeFilter {
 }
 
 export interface StateList {
-  name: string,
-  value: string
+  name: string;
+  value: string;
+}
+
+export interface QueryValue {
+  key?: string;
+  value?: string;
 }

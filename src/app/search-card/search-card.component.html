@@ -25,15 +25,15 @@
               formControlName="query"
               class="state-select"
               [(value)]="stateSelected"
-              (selectionChange)="setQuery()"
+              (selectionChange)="onChangeState()"
               required="false"
               placeholder="Seleccione"
             >
               <mat-option
                 *ngFor="let state of fieldsSelected?.state_list"
-                value="{{ state }}"
+                value="{{ state.value }}"
               >
-                {{ state }}
+                {{ state.name }}
               </mat-option>
             </mat-select>
           </ng-container>

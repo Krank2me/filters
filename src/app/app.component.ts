@@ -1,5 +1,9 @@
 import { Component } from '@angular/core';
-import { TypeFilter, TypeSearch } from './search-card/search-card.model';
+import {
+  QueryValue,
+  TypeFilter,
+  TypeSearch,
+} from './search-card/search-card.model';
 import { SearchService } from './services/search.service';
 
 @Component({
@@ -9,7 +13,7 @@ import { SearchService } from './services/search.service';
 })
 export class AppComponent {
   title = 'filters';
-  query = '';
+  query!: QueryValue;
   fetching = false;
 
   fields: TypeSearch[] = [
@@ -56,24 +60,24 @@ export class AppComponent {
       state_list: [
         {
           name: 'Incontactable',
-          value: 'INCONTACTABLE'
+          value: 'INCONTACTABLE',
         },
         {
           name: 'Future Champion',
-          value: 'FUTURE_CHAMPION'
+          value: 'FUTURE_CHAMPION',
         },
         {
           name: 'Potential Champion',
-          value: 'POTENCIAL_CHAMPION'
+          value: 'POTENCIAL_CHAMPION',
         },
         {
           name: 'Unqualified',
-          value: 'UNQUALIFIED'
+          value: 'UNQUALIFIED',
         },
         {
           name: 'Potential Customer',
-          value: 'POTENCIAL_CUSTOMER'
-        }
+          value: 'POTENCIAL_CUSTOMER',
+        },
       ],
     },
   ];
