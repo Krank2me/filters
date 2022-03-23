@@ -65,13 +65,12 @@ export class SearchCardComponent {
   }
 
   setQuery() {
-    if (!this.controlQuery.valid || !this.fieldsSelected) {
-      return;
+    if (this.controlQuery.valid || this.fieldsSelected) {
+      this.sentEvent();
     }
-    this.sentEvent();
   }
 
-  private sentEvent() {
+  sentEvent() {
     if (this._onquery?.value === this.controlQuery.value) {
       return;
     }
